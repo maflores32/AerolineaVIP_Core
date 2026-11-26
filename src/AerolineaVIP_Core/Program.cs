@@ -1,6 +1,8 @@
 using AerolineaVIP_Core.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,51 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+//******************** Servicio de Autenticación *********************************
+
+/*
+    Se agrega el servicio de autenticación al proyecto.
+    Esto permite que la aplicación pueda iniciar sesión usando
+    proveedores externos, en este caso Microsoft.
+*/
+builder.Services.AddAuthentication()
+
+    /*
+        Se configura Microsoft como proveedor externo de autenticación.
+        Esto permitirá que el usuario pueda iniciar sesión con una cuenta Microsoft.
+    */
+    .AddMicrosoftAccount(opciones =>
+    {
+        /*
+            Se obtiene el ID de cliente desde el archivo appsettings.json.
+            Este valor corresponde al "Id. de aplicación cliente"
+            copiado desde Microsoft Entra ID.
+        */
+        opciones.ClientId = builder.Configuration["MicrosoftClientId"]!;
+
+        /*
+            Se obtiene el secreto del cliente desde el archivo appsettings.json.
+            Este valor corresponde al "Valor" del secreto creado en Azure.
+            No se debe colocar el Id. de secreto.
+        */
+        opciones.ClientSecret = builder.Configuration["MicrosoftSecretId"]!;
+    });
+
+/*
+    Se configuran opciones adicionales para la cookie de autenticación.
+    Identity usa cookies para mantener la sesión iniciada del usuario.
+*/
+builder.Services.PostConfigure<CookieAuthenticationOptions>(
+    IdentityConstants.ApplicationScheme,
+    opciones =>
+    {
+
+        opciones.LoginPath = "/Identity/Account/Login";
+        opciones.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    });
+//*******************************************************************************
+
 
 //******************** Configurar la autenticación *********************************
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -67,6 +114,17 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+/*
+    Habilita la autenticación.
+    Aquí la aplicación verifica si el usuario ha iniciado sesión.
+*/
+app.UseAuthentication();
+
+/*
+    Habilita la autorización.
+    Después de autenticar al usuario, verifica si tiene permisos
+    para acceder a una página o recurso específico.
+*/
 app.UseAuthorization();
 
 app.MapStaticAssets();
