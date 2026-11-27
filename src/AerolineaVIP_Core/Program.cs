@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using AerolineaVIP_Core.Roles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,10 +77,28 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
     // Configuramos la validación de correo
     options.User.RequireUniqueEmail = false;
-}).AddEntityFrameworkStores<ApplicationDbContext>();
+}).AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 //*******************************************************************************
 
 var app = builder.Build();
+
+//******************** Creación automática de roles y usuarios ********************
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await RolesUsuarios.InitializeRoles(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error al inicializar roles.");
+    }
+}
+
+//************************************************************************************
 
 //************** Aplicar Migraciones Automáticamente **********************
 using (var scope = app.Services.CreateScope())
