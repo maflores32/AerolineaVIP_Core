@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+
+@{
+    ViewData["Title"] = "Gestión de Roles";
+    // Lista local para proteger la visualización de los botones de edición/borrado
+    var rolesProtegidos = new[] { "ROL-CLI", "ROL-CNT", "ROL-ADM", "ROL-SUP" };
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Gestión de Roles</h2>
+        <p class="text-muted">Administra los roles disponibles en el sistema de Aerolínea VIP</p>
+    </div>
+
+    <!-- Mostrar alertas de error provenientes del Controlador -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-lg"></i> + Crear Rol
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 60%;">
+                            <span class="text-danger">&#10022;</span> Nombre del Rol
+                        </th>
+                        <th class="text-center py-3" style="width: 40%;">
+                            <span class="text-secondary">&#9881;</span> Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td class="ps-4 fw-medium text-secondary">
+                                @item.Name
+                            </td>
+                            <td class="text-center">
+                                <!-- Se verifica si el rol está protegido antes de mostrar botones de acción -->
+                                @if (rolesProtegidos.Contains(item.Name, StringComparer.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2">Rol del sistema</span>
+                                }
+                                else
+                                {
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            Editar
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('¿Seguro de eliminar este rol?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

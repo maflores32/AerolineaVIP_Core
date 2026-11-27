@@ -1,0 +1,58 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Editar Roles";
+    // Se recuperan las listas que el controlador envió por el ViewBag
+    var rolesDisponibles = ViewBag.RolesDisponibles as List<string> ?? new List<string>();
+    var rolesAsignados = ViewBag.RolesAsignados as IList<string> ?? new List<string>();
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold">Editar Roles</h2>
+
+    <div class="card shadow-sm" style="max-width: 600px; border-radius: 8px; overflow: hidden; border: 1px solid #dee2e6;">
+        <!-- Encabezado azul con el nombre del usuario -->
+        <div style="background-color: #0d6efd; color: white; padding: 12px 20px;">
+            <h5 class="mb-0 fw-bold">Usuario: @Model.UserName</h5>
+        </div>
+
+        <div class="card-body p-4 bg-white">
+            <p class="mb-3" style="font-size: 1rem;">
+                <strong>Email:</strong> @Model.Email
+            </p>
+            <hr class="text-muted my-3" />
+
+            <form asp-action="EditarRoles" method="post">
+                @Html.AntiForgeryToken()
+                <!-- Se envía el ID del usuario oculto para saber a quién modificar -->
+                <input type="hidden" name="usuarioId" value="@Model.Id" />
+
+                <h6 class="fw-bold mb-3">Roles Disponibles:</h6>
+
+                <div class="mb-4">
+                    @foreach (var nombreRol in rolesDisponibles)
+                    {
+                        // Si el usuario ya tiene el rol, el checkbox aparece marcado por defecto
+                        bool seleccionado = rolesAsignados.Contains(nombreRol);
+                        <div class="form-check mb-2">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="rolesSeleccionados"
+                                   value="@nombreRol"
+                                   id="rol_@nombreRol"
+                            @(seleccionado ? "checked" : "") />
+                            <label class="form-check-label" for="rol_@nombreRol" style="font-size: 0.95rem;">
+                                @nombreRol
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-3" style="border-radius: 6px;">Guardar Cambios</button>
+                    <a asp-action="Index" class="btn btn-secondary px-3" style="border-radius: 6px;">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
