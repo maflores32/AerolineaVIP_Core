@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using AerolineaVIP_Core.Roles;
 using AerolineaVIP_Core.Services;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using AerolineaVIP_Core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,26 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+//******************** MongoDB: datos de la aerolinea *********************************
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDb"));
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddSingleton(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.DatabaseName);
+});
+//*******************************************************************************
+
+builder.Services.AddSingleton<AerolineaMongoContext>();
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //    .AddEntityFrameworkStores<ApplicationDbContext>();
