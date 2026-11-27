@@ -87,14 +87,14 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try 
-    { 
-        await RolesUsuarios.InitializeRoles(services); 
+    try
+    {
+        await RolesUsuarios.InitializeRoles(services);
     }
-    catch (Exception ex) 
-    { 
-        var logger = services.GetRequiredService<ILogger<Program>>(); 
-        logger.LogError(ex, "Error al inicializar roles."); 
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error al inicializar roles.");
     }
 }
 
