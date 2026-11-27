@@ -1,5 +1,4 @@
 ﻿using AerolineaVIP_Core.Models;
-using MoldeMVC_Core.Models;
 using MongoDB.Driver;
 
 namespace AerolineaVIP_Core.Data

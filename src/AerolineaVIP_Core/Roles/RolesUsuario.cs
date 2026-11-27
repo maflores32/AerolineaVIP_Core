@@ -36,7 +36,7 @@ namespace AerolineaVIP_Core.Roles
                 {
                     new { Username = "Counter", Email = "counter@aerolineavip.com", Password = "123", Roles = new[] { "ROL-CNT" } },
                     new { Username = "Administrador", Email = "admin@aerolineavip.com", Password = "123", Roles = new[] { "ROL-ADM" } },
-                    new { Username = "SuperAdministrador", Email = "superadmin@aerolineavip.com", Password = "123", Roles = new[] { "ROL-SUP" } }
+                    new { Username = "SuperUsuario", Email = "superusuario@aerolineavip.com", Password = "123", Roles = new[] { "ROL-SUP" } }
                 };
 
                 foreach (var userInfo in users)
