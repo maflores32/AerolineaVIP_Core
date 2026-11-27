@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+
+@{
+    ViewData["Title"] = "Gestión de Permisos";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Gestión de Permisos</h2>
+        <p class="text-muted">Administra los accesos del sistema de Aerolínea VIP para cada rol</p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 60%;">Rol</th>
+                        <th class="text-center py-3" style="width: 40%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rol in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td class="ps-4 fw-medium text-secondary">@rol.Name</td>
+                            <td class="text-center">
+                                <a asp-action="Index" asp-route-rolId="@rol.Id" class="btn btn-outline-info btn-sm rounded-pill px-3">
+                                    Gestionar Permisos
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
