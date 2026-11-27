@@ -56,6 +56,35 @@ namespace AerolineaVIP_Core.Services
                 return false;
             }
         }
+
+        // Asigna y sincroniza los permisos de un rol a un usuario copiando los claims correspondientes
+        public async Task AsignarPermisosPredeterminadosAUsuario(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return;
+
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null) return;
+
+            // Obtener los claims directos del rol
+            var roleClaims = await _roleManager.GetClaimsAsync(role);
+            var permisosDelRol = roleClaims.Where(c => c.Type == "Permission").ToList();
+
+            if (!permisosDelRol.Any()) return;
+
+            // Limpiar permisos anteriores del usuario para evitar duplicados
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            foreach (var claim in userClaims.Where(c => c.Type == "Permission"))
+            {
+                await _userManager.RemoveClaimAsync(user, claim);
+            }
+
+            // Copiar los nuevos permisos al usuario
+            foreach (var claim in permisosDelRol)
+            {
+                await _userManager.AddClaimAsync(user, new Claim("Permission", claim.Value));
+            }
+        }
     }
 }
 //******************************************************************************

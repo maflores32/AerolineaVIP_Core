@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AerolineaVIP_Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,15 @@ namespace AerolineaVIP_Core.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ServicioPermisos _servicioPermisos; 
         private readonly ILogger<UsuariosController> _logger;
 
-        // Inyección de dependencias de UserManager, RoleManager y ILogger
-        public UsuariosController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<UsuariosController> logger)
+        // Inyección de dependencias corregida
+        public UsuariosController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ServicioPermisos servicioPermisos, ILogger<UsuariosController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _servicioPermisos = servicioPermisos;
             _logger = logger;
         }
 
@@ -29,7 +32,6 @@ namespace AerolineaVIP_Core.Controllers
                 var usuarios = await _userManager.Users.ToListAsync();
                 var rolesPorUsuario = new Dictionary<string, IList<string>>();
 
-                // Se recorre cada usuario para obtener los roles que tiene asignados en la base de datos
                 foreach (var user in usuarios)
                 {
                     rolesPorUsuario[user.Id] = await _userManager.GetRolesAsync(user);
@@ -47,7 +49,6 @@ namespace AerolineaVIP_Core.Controllers
             }
         }
 
-        // Carga la pantalla de edición de roles pasando el IdentityUser y los roles en ViewBag
         public async Task<IActionResult> EditarRoles(string usuarioId)
         {
             if (string.IsNullOrEmpty(usuarioId)) return NotFound();
@@ -57,7 +58,6 @@ namespace AerolineaVIP_Core.Controllers
                 var user = await _userManager.FindByIdAsync(usuarioId);
                 if (user == null) return NotFound();
 
-                // Se envían a la vista todos los roles disponibles y los que ya tiene el usuario
                 ViewBag.RolesDisponibles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
                 ViewBag.RolesAsignados = await _userManager.GetRolesAsync(user);
 
@@ -71,7 +71,6 @@ namespace AerolineaVIP_Core.Controllers
             }
         }
 
-        // Actualiza los roles del usuario recibiendo el arreglo de checkboxes seleccionados
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarRoles(string usuarioId, string[] rolesSeleccionados)
@@ -83,8 +82,34 @@ namespace AerolineaVIP_Core.Controllers
                 var user = await _userManager.FindByIdAsync(usuarioId);
                 if (user == null) return NotFound();
 
-                // 1. Se remueven todos los roles actuales del usuario
+                // =========================================================================
+                // REGLA DE NEGOCIO RN-R03: Un usuario no puede modificarse sus propios roles
+                // =========================================================================
+                var usuarioActualId = _userManager.GetUserId(User);
+                if (user.Id == usuarioActualId)
+                {
+                    TempData["Error"] = "Por seguridad (RN-R03), no puedes modificar tus propios roles.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // =========================================================================
+                // REGLA DE NEGOCIO RN-R04: Proteger al último administrador
+                // =========================================================================
                 var rolesActuales = await _userManager.GetRolesAsync(user);
+                bool eraAdmin = rolesActuales.Contains("ROL-ADM");
+                bool seguiraSiendoAdmin = rolesSeleccionados != null && rolesSeleccionados.Contains("ROL-ADM");
+
+                if (eraAdmin && !seguiraSiendoAdmin)
+                {
+                    var admins = await _userManager.GetUsersInRoleAsync("ROL-ADM");
+                    if (admins.Count == 1 && admins[0].Id == user.Id)
+                    {
+                        TempData["Error"] = "Por seguridad (RN-R04), no puedes eliminar el rol del último Administrador activo.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
+                // 1. Se remueven todos los roles actuales del usuario
                 var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesActuales);
 
                 if (!removeResult.Succeeded)
@@ -97,16 +122,30 @@ namespace AerolineaVIP_Core.Controllers
                 if (rolesSeleccionados != null && rolesSeleccionados.Any())
                 {
                     var addResult = await _userManager.AddToRolesAsync(user, rolesSeleccionados);
+
                     if (!addResult.Succeeded)
                     {
                         TempData["Error"] = "No se pudieron asignar algunos roles al usuario.";
                         return RedirectToAction(nameof(Index));
                     }
+
+                    // 3. Sincronizamos los Claims (Permisos) del rol al usuario
+                    foreach (var rol in rolesSeleccionados)
+                    {
+                        await _servicioPermisos.AsignarPermisosPredeterminadosAUsuario(user.Id, rol);
+                    }
                 }
 
-                // 3. Se actualiza la estampa de seguridad para que el cambio de rol surta efecto
+                // Actualiza la estampa de seguridad para que el cambio de rol surta efecto
                 await _userManager.UpdateSecurityStampAsync(user);
 
+                // =========================================================================
+                // REGLA DE NEGOCIO RN-R05: Auditoría en MongoDB
+                // TODO: Cuando conectes MongoDB, insertar aquí el registro: 
+                // Quién (usuarioActualId) le cambió los roles a Quién (user.Id), cuándo y qué roles.
+                // =========================================================================
+
+                TempData["Exito"] = "Roles actualizados correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
