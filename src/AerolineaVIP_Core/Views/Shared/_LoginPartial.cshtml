@@ -1,10 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.DependencyInjection
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject IServiceProvider ServiceProvider
+@inject IHttpContextAccessor HttpContextAccessor
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    // Obtener el Id del usuario logueado
+    var IdUsuario = UserManager.GetUserId(User);
+
+    // Obtener los datos del usuario logueado
+    var gestorUsuarios = ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var objUser = await gestorUsuarios.FindByIdAsync(IdUsuario!);
+
+    // Serializar el objeto a JSON para guardar toda la información del usuario en una sola variable de sesión
+    var userJson = System.Text.Json.JsonSerializer.Serialize(objUser);
+
+    // Guardar los datos del usuario en una variable de sesión
+    HttpContextAccessor.HttpContext!.Session.SetString("User", userJson);
+
+    var nombre = objUser!.UserName;
+
     <li class="nav-item">
         <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
     </li>

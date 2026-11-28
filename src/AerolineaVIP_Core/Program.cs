@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using AerolineaVIP_Core.Roles;
-using AerolineaVIP_Core.Services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using AerolineaVIP_Core.Models;
@@ -39,9 +38,10 @@ builder.Services.AddSingleton<AerolineaMongoContext>();
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //    .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(o =>
+    o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 
-builder.Services.AddScoped<AerolineaVIP_Core.Services.ServicioPermisos>();
+builder.Services.AddScoped<ServicioPermisos>();
 
 //******************** Servicio de Autenticación *********************************
 
@@ -106,7 +106,20 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 }).AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 //*******************************************************************************
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDistributedMemoryCache();
+
+// Configurar la sesion para mantener el estado del usuario
+builder.Services.AddSession(options =>
+{
+    // Configurar la sesion para un lapso de tiempo de 30 minutos
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
+app.UseSession();
 
 //******************** Creación automática de roles y usuarios ********************
 
@@ -133,7 +146,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate(); // Aplica las migraciones pendientes
+        await context.Database.MigrateAsync();  // Aplica las migraciones pendientes
     }
     catch (Exception ex)
     {
