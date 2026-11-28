@@ -1,0 +1,32 @@
+@model AerolineaVIP_Core.Models.Aeropuerto
+
+@{
+    ViewData["Title"] = "Eliminar aeropuerto";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge bg-dark mb-1">CATÁLOGO DE OPERACIÓN</span>
+        <h2 class="mb-1">Eliminar aeropuerto</h2>
+        <p class="text-muted mb-0">Revise el registro antes de confirmar la eliminación.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">← Volver a aeropuertos</a>
+</div>
+
+<div class="alert alert-warning" role="alert">Si el aeropuerto está asociado a una ruta, el sistema rechazará la operación; puede desactivarlo desde Editar.</div>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.codigoIATA)</dt><dd class="col-sm-9">@Model.codigoIATA</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.nombre)</dt><dd class="col-sm-9">@Model.nombre</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.localidad)</dt><dd class="col-sm-9">@Model.localidad</dd>
+            <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">@Model.EstadoTexto</dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-white">
+        <form asp-action="Delete" asp-route-id="@Model._id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger">Eliminar aeropuerto</button>
+        </form>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+    </div>
+</div>

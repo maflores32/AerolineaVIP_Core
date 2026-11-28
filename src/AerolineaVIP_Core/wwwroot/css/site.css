@@ -29,3 +29,16 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Botón principal de la aerolínea (agregar al final de wwwroot/css/site.css) */
+.btn-vip {
+    background-color: #1f3a5f;
+    border-color: #1f3a5f;
+    color: #fff;
+}
+
+    .btn-vip:hover, .btn-vip:focus {
+        background-color: #162b47;
+        border-color: #162b47;
+        color: #fff;
+    }

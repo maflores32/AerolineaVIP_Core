@@ -1,0 +1,33 @@
+@model AerolineaVIP_Core.Models.Aeropuerto
+
+@{
+    ViewData["Title"] = "Detalles del aeropuerto";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge bg-dark mb-1">CATÁLOGO DE OPERACIÓN</span>
+        <h2 class="mb-1">Detalles del aeropuerto</h2>
+        <p class="text-muted mb-0">Información del aeropuerto seleccionado.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">← Volver a aeropuertos</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.codigoIATA)</dt>
+            <dd class="col-sm-9"><span class="badge bg-dark">@Model.codigoIATA</span></dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.nombre)</dt>
+            <dd class="col-sm-9">@Model.nombre</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.localidad)</dt>
+            <dd class="col-sm-9">@Model.localidad</dd>
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9"><span class="badge @Model.ClaseEstado">@Model.EstadoTexto</span></dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-white d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model._id" class="btn btn-vip">Editar</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Volver al listado</a>
+    </div>
+</div>
