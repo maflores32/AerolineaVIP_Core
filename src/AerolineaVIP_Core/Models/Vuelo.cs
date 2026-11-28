@@ -1,4 +1,3 @@
-﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -7,18 +6,12 @@ namespace AerolineaVIP_Core.Models
     [BsonIgnoreExtraElements]
     public partial class Vuelo
     {
-        [Key]
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string _id { get; set; } = default!;
-        public int idSql { get; set; } = default!;
-
-        [Display(Name = "Fecha")]
-        public DateTime fechaOperacion { get; set; } = default!;
-
-        [Display(Name = "Estado")]
+        public int idSql { get; set; }
+        public DateTime fechaOperacion { get; set; }
         public string estado { get; set; } = default!;
-
         public RutaVuelo ruta { get; set; } = default!;
         public FrecuenciaVuelo frecuencia { get; set; } = default!;
         public AeronaveVuelo? aeronave { get; set; }
@@ -29,7 +22,7 @@ namespace AerolineaVIP_Core.Models
     {
         [BsonRepresentation(BsonType.ObjectId)]
         public string rutaId { get; set; } = default!;
-        public decimal tarifaReferencial { get; set; } = default!;
+        public decimal tarifaReferencial { get; set; }
         public AeropuertoResumen origen { get; set; } = default!;
         public AeropuertoResumen destino { get; set; } = default!;
     }
@@ -47,8 +40,8 @@ namespace AerolineaVIP_Core.Models
     [BsonIgnoreExtraElements]
     public class FrecuenciaVuelo
     {
-        public int idSql { get; set; } = default!;
-        public int diaSemana { get; set; } = default!;
+        public int idSql { get; set; }
+        public int diaSemana { get; set; }
         public string horaSalida { get; set; } = default!;
         public string horaLlegada { get; set; } = default!;
     }
@@ -61,6 +54,6 @@ namespace AerolineaVIP_Core.Models
         public string matricula { get; set; } = default!;
         public string modelo { get; set; } = default!;
         public string fabricante { get; set; } = default!;
-        public int capacidadAsientos { get; set; } = default!;
+        public int capacidadAsientos { get; set; }
     }
 }

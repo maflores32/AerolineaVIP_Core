@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace AerolineaVIP_Core.Models
 {
     [BsonIgnoreExtraElements]
-    public class Catalogo
+    public partial class Catalogo
     {
-        [Key]
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string _id { get; set; } = default!;
@@ -15,7 +13,7 @@ namespace AerolineaVIP_Core.Models
         public string codigo { get; set; } = default!;
         public string descripcion { get; set; } = default!;
 
-        // Campos opcionales: cada tipo de catalogo usa solo algunos (por eso son con ?)
+        // Campos opcionales: cada tipo de catálogo usa solo algunos
         public bool? ocupaInventario { get; set; }
         public string? estadoVisual { get; set; }
         public bool? activo { get; set; }
