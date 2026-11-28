@@ -27,6 +27,10 @@ namespace AerolineaVIP_Core.Areas.Identity.Pages.Account
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
+
+            // Remover los datos de sesión del usuario
+            HttpContext.Session.Remove("User");
+
             if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);

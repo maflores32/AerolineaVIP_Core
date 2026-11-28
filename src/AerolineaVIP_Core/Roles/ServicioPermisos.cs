@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-namespace AerolineaVIP_Core.Services
+namespace AerolineaVIP_Core.Roles
 {
     public class ServicioPermisos
     {

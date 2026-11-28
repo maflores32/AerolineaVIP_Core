@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using AerolineaVIP_Core.Services;
 
-namespace AerolineaVIP_Core.Filters
+namespace AerolineaVIP_Core.Roles
 {
     // Atributo para proteger acciones y controladores según permisos de módulo
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
